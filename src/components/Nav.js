@@ -23,11 +23,14 @@ const Nav = ({ isAuth, setIsAuth }) => {
       </div>
 
       <div>
-        <Link to="/create-post">Create Post</Link>
         {!isAuth ? (
           <Link to="/Log-in">Log In</Link>
         ) : (
-          <Button onClick={signOutfunc}> Sign out</Button>
+          <>
+            <Link to="/create-post">Create Post</Link>
+
+            <Button onClick={signOutfunc}> Sign out</Button>
+          </>
         )}
       </div>
     </NavWrapper>

@@ -1,72 +1,67 @@
-import React from "react";
-import styled from "styled-components";
-
+import React, { useState, useEffect } from "react";
+import { Container, FormDiv, Button } from "./CreatePostCss";
+import { addDoc, collection } from "firebase/firestore";
+import { db, auth } from "../../firebase-config";
+import { useNavigate } from "react-router-dom";
 const CreatePost = () => {
+  const navigate = useNavigate();
+  const [post, setPost] = useState({
+    title: "",
+    content: "",
+  });
+
+  useEffect(() => {
+    if (auth.currentUser) {
+      console.log(auth.currentUser, "test");
+    } else {
+      navigate("/log-in");
+    }
+  }, [navigate]);
+  const handleChange = (e) => {
+    // key: e.target.name,
+    // value: e.target.value,
+    setPost({ ...post, [e.target.name]: e.target.value });
+  };
+  const postCollectionRef = collection(db, "posts");
+  const createPost = async () => {
+    await addDoc(postCollectionRef, {
+      title: post.title,
+      content: post.content,
+      author: {
+        name: auth.currentUser.displayName,
+        id: auth.currentUser.uid,
+        email: auth.currentUser.email,
+      },
+    });
+    navigate("/");
+  };
+  // console.log(post);
   return (
     <Container>
       <FormDiv>
         <h1>Create A Post</h1>
         <div>
           <p>Title:</p>
-          <input type="text" placeholder="Title" />
+          <input
+            type="text"
+            name="title"
+            placeholder="Title"
+            onChange={(e) => handleChange(e)}
+          />
         </div>
         <div>
           <p>Post:</p>
-          <textarea placeholder="Title" />
+          <textarea
+            name="content"
+            placeholder="Enter Your Post"
+            onChange={(e) => handleChange(e)}
+          />
         </div>
-        <button>Submit Post </button>
+        <Button onClick={createPost}>Submit Post </Button>
       </FormDiv>
     </Container>
   );
 };
-
-const Container = styled.div`
-  display: flex;
-  // background: red;
-  height: calc(100vh - 80px);
-  justify-content: center;
-  align-items: center;
-`;
-const FormDiv = styled.div`
-  width: 400px;
-  background: #040404;
-  border: 1px solid #78f8e2;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-direction: column;
-  padding: 20px 0;
-  border-radius: 5px;
-  box-shadow: 0px 0px 10px #78f8e2;
-
-  input,
-  textarea {
-    width: 100%;
-    border: none;
-    outline: none;
-    padding-left: 10px;
-  }
-  input {
-    height: 40px;
-  }
-  textarea {
-    height: 100px;
-    margin-top: 10px;
-    resize: none;
-  }
-  div {
-    border: 1px solid red;
-    width: 90%;
-  }
-  h1 {
-    color: #78f8e2;
-    text-align: center;
-  }
-  p {
-    color: #78f8e2;
-    margin-top: 10px;
-  }
-`;
 
 // const input
 export default CreatePost;
